@@ -1,0 +1,241 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+{% load app_filters %}
+{% load pagination_tags %}
+{% block title %}Admin | {{block.super}}{% endblock %}
+{% block content %}
+<div class="content-page">
+    <div class="content">
+        <div class="container-fluid">
+
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="page-title-box">
+                        <h4 class="page-title float-left">New Academic Report</h4>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+            {% if messages %}
+            {% for message in messages %}
+            {% if message.tags == 'success' %}
+            <div class="alert alert-success">{{ message }}</div>
+            {% else %}
+            <div class="alert alert-danger">{{ message }}</div>
+            {% endif %}
+            {% endfor %}
+         {% endif %}
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card-box">
+                    <form action="{% url 'yoshimitsujpinfy:admin_new_academic_report' %}" method="get">
+                        {% csrf_token %}
+                        <div class="row m-b-20 d-flex align-items-center">
+                            <div class="col-md-6 d-flex">
+                                <!-- Orange Box for Course Name -->
+                                <div class="input-group-text" style="background-color: #ff7700; color: white">Course Name</div>
+                                <input type="text" class="form-control ms-2" placeholder="Search by course name" name="searchedCourseId" id="searchedCourseId">
+                                <button type="submit" class="btn btn-orange ms-2" style="background-color: #ff7700; color: white; padding: 8px 25px; border: none; border-radius: 2px; width: 5%;">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+
+
+               
+            
+            
+                <div class="card-box">
+                        <form action="{% url 'yoshimitsujpinfy:admin_new_academic_report' %}" method="get" enctype="multipart/form-data" id="search_form">
+                            <div class="row m-b-20 align-items-end">
+                                <div class="col-md-4">
+                                    <div class="form-group mb-0">
+                                        <label for="report_to_request_date">From Date*</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control datepicker-autoclose" placeholder="dd-mm-yyyy"
+                                                value="{% if report_to_date %}{{ report_to_date }}{% endif %}" id="report_to_request_date" name="report_to_request_date" required>
+                                            <div class="input-group-append">
+                                                <span class="input-group-text bg-white border-left-0">
+                                                    <i class="fa fa-calendar text-muted"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        
+                                <div class="col-md-4">
+                                    <div class="form-group mb-0">
+                                        <label for="report_from_request_date">To Date*</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control datepicker-autoclose" placeholder="dd-mm-yyyy"
+                                                value="{% if report_from_date %}{{ report_from_date }}{% endif %}" id="report_from_request_date" name="report_from_request_date" required>
+                                            <div class="input-group-append">
+                                                <span class="input-group-text bg-white border-left-0">
+                                                    <i class="fa fa-calendar text-muted"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-sm" style="background-color: #ff7700; color: white; padding: 8px 25px; border: none; border-radius: 4px;">Apply</button>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <div class="p-3 mb-2 bg-danger text-white mt-2" style="display:None;" id="error_date_validation"></div>
+                        
+                        
+                        <div class="mt-3">
+                            <ol style="color:#ff7700; padding-left: 20px;">
+                                <li><span style="color:#ff7700;">In Course Frequency (OT) means course is OneTime course and (M) means course is Monthly course.</span></li>
+                                <li><span style="color:#ff7700;">In Search From date and To date must have 30 days or less then 30 days difference.</span></li>
+                            </ol>
+                        </div>
+                         <div class="table-responsive">
+                                    <table id="CancelledSessionData" class="table table-sm table-bordered" style="border: radius 20px;">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>S.No.</th>
+                                               
+                                                <th>Active Course Name</th>
+                                                <th style="width: 10%;">Course Code</th>
+                                                <th style="width: 5%;">Active Batch</th>
+                                                <th style="width: 25%;">Instructor Name</th>
+                                                <th>Fee Frequency</th>
+                                                <th>Enrolled student</th>
+                                                <th>Action</th>
+                                                
+                                            </tr>
+                                        </thead>
+                                        
+
+                                        <tbody>
+
+                                         
+
+                                            {% for course in ActiveCourses.object_list %}
+                                            <tr>
+                                                <td>{{ActiveCourses.start_index|add:forloop.counter0}}.</td>
+                                                <td><a href="{% url 'yoshimitsujpinfy:admin_course_information' %}?course_id_selected={{course.id}}" target="_blank">{{course.name}}</a></td>
+                                                <td>{{course.id}}</td>
+                                                <td class="text-center">
+                                                    <a href="{% url 'yoshimitsujpinfy:admin_new_course_batch_details' course.id %}"
+                                                       {% if request.user.get_all_permissions|slugify == "authcontents" %}
+                                                           style="pointer-events: none; opacity: 1; color: inherit; text-decoration: none;"
+                                                       {% endif %}>
+                                                        <button type="button" title="Batch Count" class="btn btn-danger btn-sm">
+                                                            {{ course.batch_count }}
+                                                        </button>
+                                                    </a>
+                                                </td>
+                                                {% if course.get_course_instructor %}
+											<td>{{course.get_course_instructor.first_name}} {{course.get_course_instructor.last_name}}</td>
+											{% else %}
+											<td>N/A</td>
+											{% endif %}
+
+                                                <td>{% if course.get_course_active_batch.fee_frequency == 'Monthly' %} M {% else %} OT {% endif %}</td>
+                                                <td>{{ course.get_enrolled_count }}</td>
+                                                <td><a href="{% url 'yoshimitsujpinfy:admin_course_information' %}?course_id_selected={{course.id}}">
+                                                    <i class="fa fa-eye"></i>
+                                                </a></td>
+
+                                            {% endfor %}
+
+                                            
+
+                                            
+                                            
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="text-center mb-3">
+                                    <div class="course-pagination ">
+                                       <ul class="pagination">
+                                        {% autoescape off %}
+                                        {% paginate_with_params ActiveCourses %}
+                                        {% endautoescape %}
+                                         </ul>
+                                    </div>
+                                 </div>
+         
+                            </div>
+    
+                        </div>
+    
+    
+                    </div>
+    
+    
+    
+    
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+                        
+                        <script>
+                            $('.datepicker-autoclose').datepicker({
+                                autoclose: true,
+                                format: 'dd MM, yyyy',
+                                todayHighlight: true,
+                                container: 'body',  // This is key - places the datepicker in the body element
+                                orientation: 'bottom auto'  // Forces the datepicker to appear below
+                            });
+                            
+                            // And improve the calendar icon click handler:
+                            $('.input-group-append').on('click', function() {
+                                $(this).closest('.input-group').find('.datepicker-autoclose').datepicker('show');
+                            });
+
+
+                            
+
+    $(document).ready(function() {
+		$('.selectCourse').select2({
+
+		ajax: {
+                url: '/yoshimitsujpinfy/admin_course_search_suggestions',
+                dataType: 'json',
+
+                data: function (params) {
+                    var query = {
+                        Value: params.term // search term
+                    };
+
+                    if ($(this).attr('exclude-one-to-one') === '1') {
+                        query.exclude_one_to_one_course = 1;
+                    }
+
+                    return query;
+                },
+
+                processResults: function (data) {
+
+                    return {
+                        results: data
+                    };
+                }
+            },
+
+
+            selectOnClose: true,
+			minimumInputLength: 1,
+			allowClear: true,
+			placeholder:"Search by course name"
+
+		});
+	});
+                        </script>
+
+{% endblock %}
