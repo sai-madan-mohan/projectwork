@@ -1,0 +1,545 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+{% load pagination_tags %}
+{% block title %}Admin | {{block.super}}{% endblock %}
+{% block content %}
+
+
+            <div class="content-page">
+                <div class="content">
+                    <div class="container-fluid">
+
+                        <div class="row">
+                            <div class="col-xl-12">
+                                <div class="page-title-box">
+                                    <h4 class="page-title float-left">  iffco Report</h4>
+
+                                    <ol class="breadcrumb float-right">
+                                        
+                                        <li class="breadcrumb-item active">  iffco Report</li>
+                                    </ol>
+
+                                    <div class="clearfix"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if messages %}
+                            {% for message in messages %}
+							{% if message.tags == 'success' %}
+                                <div class="alert alert-success">{{ message }}</div>
+							{% else %}
+								<div class="alert alert-danger">{{ message }}</div>
+							{% endif %}
+                            {% endfor %}
+                        {% endif %}
+
+						<div class="row">
+                            <div class="col-md-12">
+
+
+
+                            <form action="{% url 'yoshimitsujpinfy:admin_iffco' %}" method="get">
+
+                                {% csrf_token %}
+
+								<div class="row m-b-20">
+                                   <div class=" col-md-4">
+
+                                    <select class="form-control  selectCourse " style="width:100%;" id="searchedCourseId" name="searchedCourseId">
+
+										<option></option>
+
+
+								 </select>
+								</div>
+								<div class="col-md-4">
+									<select class="form-control  selectemail " style="width:100%;" id="useridsearched" name="useridsearched">
+
+															   <option></option>
+
+
+								 </select>
+								</div>
+			
+
+
+							<div class="col-md-4">
+
+								  <button type="submit" class="btn btn-primary  btn-sm" ><i class="fa fa-search"></i> Search</button>
+
+                                
+
+								  </select>
+							</div>
+
+								</div>
+
+                            </form>
+                            <form action="{% url 'yoshimitsujpinfy:admin_iffco' %}" method="get" enctype="multipart/form-data" id="search_form">
+
+                               
+                            <div class="row m-b-20">
+
+                                <div class="col-md-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text">From Date <span class="text-red">*</span></div>
+                                        </div>
+                                        {% if report_from_date %}
+                                        <input type="text" class="form-control datepicker-autoclose" placeholder="mm/dd/yyyy"
+                                               value="{{ report_to_date }}" id="enrollment_to_request_date" name="enrollment_to_request_date" required>
+                                        {% else %}
+                                        <input type="text" class="form-control datepicker-autoclose" placeholder="mm/dd/yyyy"
+                                               id="enrollment_to_request_date" name="enrollment_to_request_date" required>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text">To Date <span class="text-red">*</span></div>
+                                        </div>
+                                        {% if report_to_date %}
+                                        <input type="text" class="form-control datepicker-autoclose" placeholder="mm/dd/yyyy"
+                                               value="{{ report_from_date  }}" id="enrollment_from_request_date" name="enrollment_from_request_date" required>
+                                        {% else %}
+                                        <input type="text" class="form-control datepicker-autoclose" placeholder="mm/dd/yyyy"
+                                               id="enrollment_from_request_date" name="enrollment_from_request_date" required>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                    
+
+                                    <div class="col-md-2">
+
+                                {% if request.GET.from_date and request.GET.to_date %}
+                                    <button type="button" class="btn btn-secondary btn-sm" id="goBackButtonDate"><i class="fa fa-arrow-left"></i> Go Back</button>						
+                                {% else %}
+
+                                          <button type="submit" class="btn btn-primary  btn-sm" ><i class="fa fa-search"></i> Search</button>
+
+                                {% endif %}
+                                    </div>
+
+                                </div>
+
+                            </form>
+
+                
+
+
+{% if userCourses.object_list|length > 0 %}
+									<div class="table-responsive">
+					<table class="table table-bordered  table-sm" width="100%">
+
+							<thead class="thead-light">
+
+							<tr>
+								<th style="width: 15%;">Course Name</th>
+                                <th style="width: 5%;">Start Date</th>
+                                <th style="width: 5%;">Student Name</th>
+                                <th style="width: 5%;">Total Session Happened</th>
+								<th style="width: 5%;">Total Session Attended</th>
+                                <th style="width: 5%;">Attendance Percentage</th>
+                                <th style="width: 5%;">No.of Assignment Assigned</th>
+                                <th style="width: 5%;" >No.of Assignment Attempted</th>
+                                <th style="width: 5%;">No.of Assessment Assigned</th>
+                                <th style="width: 5%;">No.of Assessment Attempted</th>
+                                <th style="width: 5%;">Total Course Assigned</th>
+                                <th style="width: 5%;">Overall Rating</th>
+                                
+							</tr>
+							</thead>
+							<tbody>
+
+                            {% for usercourse in userCourses.object_list %}
+
+                            <tr>
+                                <td>{{ usercourse.course.name }}</td>
+                                <td>{{ usercourse.batch.live_class_from|date:'d M Y' }}</td>
+                                <td>{{ usercourse.user.first_name }} {{ usercourse.user.last_name }}</td>
+                                <td>{{ usercourse.get_total_completed_sessions }}</td>
+                                <td></td>
+                                <td></td>
+                                <td>{{ usercourse.get_total_assignment }}</td>
+                                <td></td>
+                                <td>{{ usercourse.get_total_assessments_count}}</td>
+                                <td></td>
+                                <td></td>
+                                <td>{{usercourse.batch.get_batch_average_rating}}</td>
+							</tr>
+
+                            {% endfor %}
+
+							</tbody>
+						</table>
+
+<!--                                pagination starts -->
+
+
+                        <div class="text-center mb-3">
+                           <div class="course-pagination ">
+                              <ul class="pagination">
+                                {% autoescape off %}
+								{% paginate_with_params userCourses %}
+                                {% endautoescape %}
+                                </ul>
+                           </div>
+                        </div>
+<!--                                pagination ends -->
+					</div>
+                    {% else %}
+                    <h6 class="m-t-30 m-b-30 text-center">  <i class="fa fa-warning text-warning"></i> <span class="text-muted">No data available.</span></h6>
+                    {% endif %}
+									</div>
+
+
+
+
+                                </div>
+                            </div>
+                        </div>
+
+					</div>
+            </div>
+
+<!-- edit user enrolled modal starts -->
+
+                        {% for usercourse in userCourses.object_list %}
+
+									<div class="modal fade" id="EditEnrolledUser{{ usercourse.id }}" role="dialog" aria-labelledby="EditEnrolledUserLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="EditAddEnrolledUserLabel"> Edit Enrolled User</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+
+          
+
+                                   
+								
+
+				
+                                    <div class="form-group row">
+                                        <label for="EnrollmentEndDate" class="col-lg-3 col-form-label">Enrollment End Date </label>
+                                        <div class="col-lg-8">
+        <!-- Display placeholder text if no date is selected -->
+                                                <input type="date" class="form-control" id="EnrollmentEndDate" name="enroll_end_date"
+                                                {% if usercourse.end_date %}
+               value="{{usercourse.end_date|date:'Y-m-d'}}"
+               {% else %}
+               placeholder="dd-mm-yyyy"
+               {% endif %}
+               min="{{ min_date }}"
+               max="{{ max_date }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="AllowEnrollmentStartDate" class="col-lg-3 col-form-label">Allow Enrollment Start Date </label>
+                                        <div class="col-lg-8">
+                                            <input type="date" class="form-control" id="AllowEnrollmentStartDate" name="allow_enroll_start_date"
+                                                placeholder="mm/dd/yyyy" {% if usercourse.allow_enrollment_start_date %}
+                                                value="{{usercourse.allow_enrollment_start_date|date:'Y-m-d'}}" {% endif %}
+                                                min="{{ usercourse.batch.live_class_from|date:'Y-m-d' }}"
+                                                max="{{ usercourse.batch.live_class_to|date:'Y-m-d' }}">
+                                        </div>
+                                    </div>
+
+                                        </div>
+                                                <div class="modal-footer">
+
+                                                    <button type="submit" class="btn btn-primary"> Save</button>
+						    <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                                                </div>
+
+                                         </form>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                        {% endfor %}
+
+<!--edit user enrolled modal ends -->
+
+ <script>
+			$(document).ready( function () {
+				$('#EnrolledDataTable').DataTable({
+                    "ordering": false,
+					"searching":false,
+					"language": {
+					  "info": "Showing _START_ to _END_ of _TOTAL_ Enrolled",
+					  sLengthMenu: "Show _MENU_ Enrolled"
+					},
+
+					"dom": '<"top"i>rt<"bottom"flp><"clear">'
+				});
+			} );
+ </script>
+
+
+<script type="text/javascript">
+    var student_data = []
+	var user_assignment_data = $('#assignments-status').data("value");
+    var total_assignments = "{{total_assignments}}"
+    var attempted_assignments = 0
+	for (assignment_data in user_assignment_data["user_id_to_assignment_map"]){
+        attempted_assignments = attempted_assignments + user_assignment_data["user_id_to_assignment_map"][assignment_data].assignment_count;
+		student_data.push(
+			{
+				student: user_assignment_data["user_id_to_assignment_map"][assignment_data].username,
+				assignment: total_assignments,
+				submitted: user_assignment_data["user_id_to_assignment_map"][assignment_data].assignment_count,
+				notassignments: total_assignments - user_assignment_data["user_id_to_assignment_map"][assignment_data].assignment_count
+			}
+		)
+	}
+
+	for (assignment_data in user_assignment_data["unattempted_assignment_user_id_map"]){
+		student_data.push(
+			{
+				student: user_assignment_data["unattempted_assignment_user_id_map"][assignment_data].username,
+				assignment: total_assignments,
+				submitted: 0,
+				notassignments: total_assignments
+			}
+		)
+	}
+	Morris.Bar({
+		element: 'assignments-status',
+		data: student_data,
+		resize: true,
+		// horizontal: true,
+		xLabelAngle: 90,
+		xkey: 'student',
+		stacked: true,
+		barColors:['#3e95cd', '#3cba9f', '#ff6361'],
+		ykeys: ['assignment','submitted', 'notassignments'],
+		labels: ['Total Assignments','Submitted', 'Not Submitted' ],
+	});
+	var total_students = $('#assignments-submitted').data("value");
+    var attempted_assignment_percentage = Math.round(((attempted_assignments/(total_assignments*(student_data.length)))*100).toFixed(1));
+    var unattempted_assignment_percentage = 100 - attempted_assignment_percentage;
+	Morris.Donut({
+element: 'assignments-submitted',
+
+resize: true,
+colors: [
+	'#3cba9f',
+	'#ff6361'
+
+],
+formatter: function (value) { return (value) + '%'; },
+
+data: [
+	{label:"Submitted", value: attempted_assignment_percentage},
+	{label:"Not Submitted", value: unattempted_assignment_percentage},
+
+]
+});
+	
+</script>
+
+<script>
+
+$('#bulkcourses').on('change', function () {
+    const courseId = this.value;
+
+    if (courseId) {
+        $.ajax({
+            type: "GET",
+            url: `/yoshimitsujpinfy/admin_get_course_batch/`,
+            data: { CourseId: courseId },
+            beforeSend: function () {
+                $("#bulkselectedBatchId").html('<option value="">Loading...</option>');
+            },
+            success: function (response) {
+                if (response.length === 0) {
+                    $("#bulkselectedBatchId").html('<option value="">Batch is not created yet for this course..</option>');
+                    $('#enrollbtn').prop('disabled', true);
+                } else {
+                    let options = '<option value="">Select a batch</option>';
+                    response.forEach(batch => {
+                        options += `<option value="${batch.id}">${batch.name}</option>`;
+                    });
+                    $("#bulkselectedBatchId").html(options).prop('disabled', false);
+                    $('#enrollbtn').prop('disabled', false);
+                }
+            },
+            error: function () {
+                $("#bulkselectedBatchId").html('<option value="">Error fetching batches. Try again.</option>');
+                $('#enrollbtn').prop('disabled', true);
+            }
+        });
+    } else {
+        $("#bulkselectedBatchId").html('<option value="">Please select course first</option>').prop('disabled', true);
+        $('#enrollbtn').prop('disabled', true);
+    }
+});
+
+
+
+$('#re_SelectedCourseId').on('change', function () {
+
+const courseId = this.value;
+console.log(courseId);
+
+
+if (courseId) {
+    $.ajax({
+        type: "GET",
+        url: `/yoshimitsujpinfy/admin_get_course_batch/`,
+        data: { CourseId: courseId },
+        beforeSend: function () {
+            $("#re_selectedBatchId").html('<option value="">Loading...</option>');
+        },
+        success: function (response) {
+            console.log("lenght",response.length);
+            
+            if (response.length === 0) {
+                $("#re_selectedBatchId").html('<option value="">Batch is not created yet for this course..</option>');
+                $('#re_enrollbtn').prop('disabled', true);
+            } else {
+                let options = '<option value="">Select a batch</option>';
+                response.forEach(batch => {
+                    options += `<option value="${batch.id}">${batch.name}</option>`;
+                });
+                $("#re_selectedBatchId").html(options).prop('disabled', false);
+                $('#re_enrollbtn').prop('disabled', false);
+            }
+        },
+        error: function () {
+            $("#re_selectedBatchId").html('<option value="">Error fetching batches. Try again.</option>');
+            $('#re_enrollbtn').prop('disabled', true);
+        }
+    });
+} else {
+    $("#re_selectedBatchId").html('<option value="">Please select course first</option>').prop('disabled', true);
+    $('#re_enrollbtn').prop('disabled', true);
+}
+});
+
+
+    $(document).ready(function() {
+		$('.selectemail').select2({
+
+			ajax: {
+                url: '/yoshimitsujpinfy/admin__search_suggestions',
+                dataType: 'json',
+
+                data: function (params) {
+                    return {
+                        Value: params.term, // search term
+
+                    };
+                },
+
+                processResults: function (data) {
+
+                    return {
+                        results: data
+                    };
+                }
+            },
+
+
+            selectOnClose: true,
+			minimumInputLength: 1,
+			allowClear: true,
+			placeholder:"Search by email"
+
+		});
+	});
+
+
+
+    $(document).ready(function() {
+		$('.selectCourse').select2({
+
+		ajax: {
+                url: '/yoshimitsujpinfy/admin_course_search_suggestions',
+                dataType: 'json',
+
+                data: function (params) {
+                    var query = {
+                        Value: params.term // search term
+                    };
+
+                    if ($(this).attr('exclude-one-to-one') === '1') {
+                        query.exclude_one_to_one_course = 1;
+                    }
+
+                    return query;
+                },
+
+                processResults: function (data) {
+
+                    return {
+                        results: data
+                    };
+                }
+            },
+
+
+            selectOnClose: true,
+			minimumInputLength: 1,
+			allowClear: true,
+			placeholder:"Search by course name"
+
+		});
+	});
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var startDateInput = document.getElementById('AllowEnrollmentStartDate');
+        var endDateInput = document.getElementById('EnrollmentEndDate');
+
+        function updateStartDateMax() {
+            var endDate = endDateInput.value;
+            if (endDate) {
+                // Calculate one day before the selected end date
+                var endDateObj = new Date(endDate);
+                endDateObj.setDate(endDateObj.getDate() - 1);
+                var maxDate = endDateObj.toISOString().split('T')[0]; // Format to yyyy-mm-dd
+                startDateInput.setAttribute('max', maxDate);
+            } else {
+                startDateInput.removeAttribute('max');
+            }
+        }
+
+        function updateEndDateMin() {
+            var startDate = startDateInput.value;
+            if (startDate) {
+                endDateInput.setAttribute('min', startDate);
+            }
+        }
+
+        // Update start date max when end date changes
+        endDateInput.addEventListener('change', updateStartDateMax);
+
+        // Update end date min when start date changes
+        startDateInput.addEventListener('change', updateEndDateMin);
+
+        // Ensure end date is always after start date
+        endDateInput.addEventListener('change', function() {
+            var startDate = startDateInput.value;
+            var endDate = endDateInput.value;
+            if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
+                alert('Enrollment End Date must be after the Allow Enrollment Start Date.');
+                endDateInput.value = ''; // Clear the invalid end date
+            }
+        });
+
+        // Initialize date restrictions on page load
+        updateStartDateMax();
+        updateEndDateMin();
+    });
+</script>
+
+
+{% endblock %}
