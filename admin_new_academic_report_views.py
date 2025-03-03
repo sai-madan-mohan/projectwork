@@ -44,4 +44,4 @@ class AdminNewAcademicReportView(AdminLoginRequiredMixin, View):
                        'course_count': active_courses.count(),
                        'Search_Courses': active_courses.distinct(),
                        })
-    
+    l
