@@ -543,3 +543,11 @@ if (courseId) {
 
 
 {% endblock %}
+
+
+<!-- def get_total_assessments_count(self):
+# Assuming CourseAssessment is a model that links courses and assessments
+    current_assessments = CourseAssessment.objects.filter(course=self.course, batch=self.batch)
+    assessment_ids = current_assessments.values_list('assessment', flat=True)
+    total_assessments_count = Assessment.objects.filter(id__in=assessment_ids).count()
+    return total_assessments_count -->
